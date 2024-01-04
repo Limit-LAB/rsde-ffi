@@ -1,0 +1,26 @@
+[package]
+name = "rsde-rsffi"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+
+[dependencies]
+mozjs = { path = "../mozjs/mozjs" }
+futures = "0.3"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+rsde_ffi_derive = { path = "./components/rsde_ffi_derive" }
+
+[workspace]
+members = [
+    "components/jstraceable_derive",
+    "components/rsde_ffi_derive",
+]
+
+[workspace.dependencies]
+proc-macro2 = "1"
+syn = { version = "2", default-features = false, features = ["clone-impls", "derive", "parsing"] }
+synstructure = "0.13"
+quote = "1"
