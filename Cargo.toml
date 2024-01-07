@@ -12,6 +12,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 
 rsde_ffi_derive = { path = "./components/rsde_ffi_derive" }
+jstraceable_derive = { path = "./components/jstraceable_derive" }
 
 [workspace]
 members = [
@@ -21,6 +22,6 @@ members = [
 
 [workspace.dependencies]
 proc-macro2 = "1"
-syn = { version = "2", default-features = false, features = ["clone-impls", "derive", "parsing"] }
+syn = { version = "2", features = ["full"] }
 synstructure = "0.13"
 quote = "1"

@@ -577,6 +577,7 @@ name = "rsde-rsffi"
 version = "0.1.0"
 dependencies = [
  "futures",
+ "jstraceable_derive",
  "mozjs",
  "rsde_ffi_derive",
  "tokio",

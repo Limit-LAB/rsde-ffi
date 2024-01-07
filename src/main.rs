@@ -4,74 +4,13 @@
     non_snake_case,
     improper_ctypes
 )]
+#![feature(lazy_cell)]
 pub mod rustffi;
 
-use ::std::ptr;
-use mozjs::conversions::{ConversionResult, FromJSValConvertible, ToJSValConvertible};
-use mozjs::jsapi::*;
-use mozjs::jsval::UndefinedValue;
-use mozjs::rooted;
-use mozjs::rust::{define_methods, SIMPLE_GLOBAL_CLASS};
-use mozjs::rust::{JSEngine, RealmOptions, Runtime};
-use rsde_ffi_derive::rsde_ffi;
-use tracing::Level;
+#[cfg(test)]
+mod tests;
 
-fn main() {
-    tracing_subscriber::fmt()
-        .with_max_level(Level::TRACE)
-        .init();
-
-    tracing::info!("starting spidermonkey engine");
-    let engine = JSEngine::init().expect("failed to initalize JS engine");
-    tracing::info!("starting spidermonkey runtime");
-    let runtime = Runtime::new(engine.handle());
-    assert!(!runtime.cx().is_null(), "failed to create JSContext");
-
-    let span = tracing::span!(Level::TRACE, "enter global realm");
-    let _enter = span.enter();
-    let options = RealmOptions::default();
-    unsafe {
-        EnterRealm(
-            runtime.cx(),
-            JS_NewGlobalObject(
-                runtime.cx(),
-                &SIMPLE_GLOBAL_CLASS,
-                ptr::null_mut(),
-                OnNewGlobalHookOption::FireOnNewGlobalHook,
-                &*options,
-            ),
-        );
-    }
-
-    #[rsde_ffi]
-    fn print(s: String) -> i32 {
-        println!("fromjs: {}", s);
-        114514
-    }
-
-    unsafe {
-        tracing::info!("define global this");
-        rooted!(in(runtime.cx()) let global = CurrentGlobalOrNull(runtime.cx()));
-        if global.is_null() {
-            panic!("no global")
-        }
-        tracing::info!("define methods");
-        define_methods(runtime.cx(), global.handle(), RSDE_FFI_print_SPEC).unwrap();
-
-        rooted!(in(runtime.cx()) let mut rval = UndefinedValue());
-
-        tracing::info!("evaluating script");
-        runtime
-            .evaluate_script(
-                global.handle(),
-                "let s = print('akara 吃答辩， rend 开 BYDBYD'); s == 114514",
-                "fuck.js",
-                0,
-                rval.handle_mut(),
-            )
-            .unwrap();
-    }
-}
+fn main() {}
 
 // extern "C" fn RSDE_FFI_print(ctx: *mut JSContext, argc: u32, args: *mut Value) -> bool {
 //     let span = tracing::span!(tracing::Level::TRACE, "RSDE_FFI_print");
